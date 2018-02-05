@@ -58,10 +58,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IntegrationTest.cs" />
     <Compile Include="UnitTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SelfHost\SelfHost.csproj">
+      <Project>{cf36bf58-d08f-425a-9a6a-d0a86c506110}</Project>
+      <Name>SelfHost</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,8 +1,8 @@
 ﻿using NUnit.Framework;
 using ServiceStack;
+using ServiceStack.Auth;
 using ServiceStack.Testing;
-using SelfHost.ServiceInterface;
-using SelfHost.ServiceModel;
+using System.Security.Cryptography;
 
 namespace SelfHost.Tests
 {
@@ -10,23 +10,29 @@ namespace SelfHost.Tests
     {
         private readonly ServiceStackHost appHost;
 
+        private string passwordHash = "lmXQNKAoWc+HXADy3U2yLd0lzactUDB1OqlUtd4PeugDJ06oKdVID82ellAbnShUPGhDibDW+SWU82sb702DqA==";
+        private string salt = "aQWJVmQ=";
+
         public UnitTest()
         {
             appHost = new BasicAppHost().Init();
-            appHost.Container.AddTransient<MyServices>();
         }
 
         [OneTimeTearDown]
         public void OneTimeTearDown() => appHost.Dispose();
 
         [Test]
-        public void Can_call_MyServices()
+        public void Verify_Password_SHA512Managed()
         {
-            var service = appHost.Container.Resolve<MyServices>();
+            var isMatch = new SaltedHash(new SHA512Managed(), 5).VerifyHashString("123456", passwordHash, salt);
+            Assert.That(isMatch);
+        }
 
-            var response = (HelloResponse)service.Any(new Hello { Name = "World" });
-
-            Assert.That(response.Result, Is.EqualTo("Hello, World!"));
+        [Test]
+        public void Verify_Password_IHashProvider()
+        {
+            var isMatch = appHost.Resolve<IHashProvider>().VerifyHashString("123456", passwordHash, salt);
+            Assert.That(isMatch);
         }
     }
 }

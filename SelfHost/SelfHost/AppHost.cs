@@ -3,6 +3,7 @@ using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
+using System.Security.Cryptography;
 
 namespace SelfHost
 {
@@ -45,15 +46,17 @@ namespace SelfHost
             SetConfig(new HostConfig
             {
                 DebugMode = true,
-                UseSaltedHash = true
+                //UseSaltedHash = true
             });
+
+            container.Register<IHashProvider>(c => new SaltedHash(new SHA512Managed(), 5));
 
             Plugins.Add(new AuthFeature(() => new AuthUserSession(),
                 new IAuthProvider[] {
                         new CredentialsAuthProvider(AppSettings),
                 })
             {
-                CreateDigestAuthHashes = true,
+                //CreateDigestAuthHashes = true,
                 IncludeRegistrationService = true
             });
 
@@ -61,7 +64,7 @@ namespace SelfHost
                     new OrmLiteConnectionFactory($"~/../../{db}".MapServerPath(), SqliteDialect.Provider));
 
             container.Register<IAuthRepository>(c =>
-                new OrmLiteAuthRepository(c.Resolve<IDbConnectionFactory>()));
+                 new OrmLiteAuthRepository(c.Resolve<IDbConnectionFactory>()));
         }
     }
 }
